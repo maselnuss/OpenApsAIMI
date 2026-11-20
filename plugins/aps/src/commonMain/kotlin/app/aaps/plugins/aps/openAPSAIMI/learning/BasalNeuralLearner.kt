@@ -1062,7 +1062,12 @@ class BasalNeuralLearner @Inject constructor(
 
         const val BASAL_PROBE_BASAL_UPH = 1.0
         const val BASAL_PROBE_DURA_MIN = 30.0
-        const val BASAL_PROBE_DURA_AVG = 45.0
+        /**
+         * Same value the live loop passes: the plugin builds [GlucoseStatusAIMI] with `duraISFaverage = 0.0`
+         * and the training rows carry 0 in that column (stored mean 0, std 1). A probe of 45 asks the model
+         * about an input it has never seen, so a healthy model answered above its range and was rejected.
+         */
+        const val BASAL_PROBE_DURA_AVG = 0.0
         const val BASAL_PROBE_IOB_U = 0.5
 
         /**
