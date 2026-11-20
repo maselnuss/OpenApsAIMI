@@ -14962,7 +14962,10 @@ class DetermineBasalaimiSMB2 @Inject constructor(
         if (bg != null) builder.append(" bg=${bg.roundToInt()}")
         if (delta != null) builder.append(" Δ=${aimiFmt1(delta)}")
         val reasonText = rT.reason.toString().replace("\n", " | ")
-        builder.append(" reason=${reasonText.take(180)}")
+        // take() counts UTF-16 units: a cut between the two halves of an emoji leaves a lone high
+        // surrogate, which breaks the consoleLog JSON in the Nightscout device status upload.
+        val reasonCut = reasonText.take(180).let { if (it.lastOrNull()?.isHighSurrogate() == true) it.dropLast(1) else it }
+        builder.append(" reason=$reasonCut")
         work.consoleLog.add(builder.toString())
 
         val modeLabel = when {
