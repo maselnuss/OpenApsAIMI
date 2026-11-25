@@ -916,4 +916,22 @@
     <string name="essential_activity_title">Activity</string>
     <string name="essential_maintenance_label" comment="Shown when the user taps the small maintenance dot by the glucose shape. %1$s=what is due (Sensor, Patch or cannula, Insulin, Reservoir, Battery), %2$s=its age, or what is left (insulin in the reservoir, battery charge), as the status lights show it. Examples: Sensor: 9d 18h, Reservoir: 12 U">%1$s: %2$s</string>
 
+    <string name="widget_aimi_description">AIMI (4x2 / 4x3)</string>
+    <string name="aimi_widget_iob">IOB</string>
+    <string name="aimi_widget_basal">Basal</string>
+    <string name="aimi_widget_isf">ISF</string>
+    <string name="aimi_widget_smb">SMB</string>
+    <string name="aimi_widget_pod">Pod</string>
+    <string name="aimi_widget_site">Site</string>
+    <string name="aimi_widget_sensor">Sensor</string>
+    <string name="aimi_widget_tir">TIR</string>
+    <string name="aimi_widget_range_hours">%1$s h</string>
+    <string name="aimi_widget_prediction" comment="%1$s=predicted glucose 30 minutes ahead, example: 84">in 30 min approx. %1$s</string>
+    <string name="aimi_widget_low_possible" comment="Short note in the widget chart, drawn in red. Shown when the curve of active insulin alone goes low within one hour. A possibility, not an alarm.">Low possible</string>
+    <string name="aimi_widget_hours_short" comment="%1$s=hours, example: 42 h">%1$s h</string>
+    <string name="aimi_widget_days_left" comment="%1$s=days, example: 6.5 d left">%1$s d left</string>
+    <string name="aimi_widget_grace" comment="%1$s=hours, example: grace 5 h. The time that still runs after the planned end of a pod or sensor.">grace %1$s h</string>
+    <string name="aimi_widget_over_units" comment="%1$s=units, example: over 50 U. The pod only says it holds more than this.">over %1$s U</string>
+    <string name="aimi_widget_units" comment="%1$s=units, example: 37 U">%1$s U</string>
+    <string name="aimi_widget_no_value">–</string>
 </resources>

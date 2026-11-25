@@ -18,6 +18,7 @@ import androidx.glance.appwidget.runComposition
 import app.aaps.core.interfaces.logging.AAPSLogger
 import app.aaps.core.interfaces.logging.LTag
 import app.aaps.core.interfaces.widget.WidgetUpdater
+import app.aaps.ui.widget.aimi.AimiGlanceWidget
 import app.aaps.ui.widget.glance.AapsGlanceWidget
 import app.aaps.ui.widget.glance.BgGraphGlanceWidget
 import app.aaps.ui.widget.glance.CompactBgGlanceWidget
@@ -106,6 +107,7 @@ class WidgetUpdaterImpl(
                 render(BgGraphGlanceWidget())
                 render(CompactBgGlanceWidget())
                 render(GlucoseCircleGlanceWidget())
+                render(AimiGlanceWidget())
             }
             runCatching { triggerSmallWidgetUpdate() }
                 .onFailure { aapsLogger.error(LTag.WIDGET, "updateSmallWidget failed: ${it.message}", it) }
