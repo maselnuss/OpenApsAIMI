@@ -2,6 +2,7 @@
 <resources>
     <string name="cwf_comment_background">Background image</string>
     <string name="cwf_comment_chart">Graphs (BG, basal, prediction lines...)</string>
+    <string name="cwf_comment_aimi_overlay">AIMI overlay (forecast band, time in range ring, pod/sensor/watch battery rings, SMB strip) - use the full 400x400 area</string>
     <string name="cwf_comment_cover_chart">Image in front of graph and behind text fields</string>
     <string name="cwf_comment_complication">Container for complication</string>
     <string name="cwf_comment_freetext1">Free text 1</string>

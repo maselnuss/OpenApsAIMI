@@ -395,7 +395,58 @@ sealed class EventData : Event() {
          * does not send it.
          */
         val targets: ArrayList<Target> = ArrayList(),
+        /**
+         * What the AIMI watch face draws beyond the standard fields: the measured forecast, time in range, pod and
+         * sensor. Null from a phone without the AIMI widget code, or while it could not be read.
+         */
+        val aimi: Aimi? = null,
     ) : EventData() {
+
+        /** One point of an AIMI curve, [value] in mg/dL at [timeStamp]. */
+        @Serializable
+        data class AimiPoint(
+            val timeStamp: Long,
+            val value: Double
+        )
+
+        /**
+         * The same forecast, time in range, pod and sensor as the AIMI home screen widget shows, all glucose in mg/dL.
+         * A fraction is 1 for new and 0 for used up, -1 when unknown. A level is 0 normal, 1 warning, 2 critical.
+         */
+        @Serializable
+        data class Aimi(
+            /** The measured forecast: centre and the range around it, one point every 5 minutes. Empty without a fresh reading. */
+            val centre: ArrayList<AimiPoint> = ArrayList(),
+            val low: ArrayList<AimiPoint> = ArrayList(),
+            val high: ArrayList<AimiPoint> = ArrayList(),
+            /** The insulin-only curve, only while [lowRisk] is true. */
+            val insulinOnly: ArrayList<AimiPoint> = ArrayList(),
+            val lowRisk: Boolean = false,
+            /** Today's time in range in percent, -1 when there are too few readings. */
+            val tirLow: Int = -1,
+            val tirIn: Int = -1,
+            val tirHigh: Int = -1,
+            val podFraction: Float = -1f,
+            val podLevel: Int = 0,
+            val sensorFraction: Float = -1f,
+            val sensorLevel: Int = 0,
+            val lowMarkMgdl: Double = 70.0,
+            val highMarkMgdl: Double = 180.0,
+            /** Weather at the phone's place in degrees Celsius: now, and today's low and high. [UNKNOWN] when unknown. */
+            val weatherNowC: Double = UNKNOWN,
+            val weatherLowC: Double = UNKNOWN,
+            val weatherHighC: Double = UNKNOWN,
+            /** Insulin on board in U, the basal rate running now and the profile's rate in U/h. [UNKNOWN] when not known. */
+            val iobU: Double = UNKNOWN,
+            val basalNowU: Double = UNKNOWN,
+            val basalProfileU: Double = UNKNOWN,
+        ) {
+
+            companion object {
+
+                const val UNKNOWN = -999.0
+            }
+        }
 
         /** One point of the target line, [mgdl] from [timeStamp] until the next point. */
         @Serializable

@@ -26,6 +26,7 @@ import app.aaps.wear.events.EventWearPreferenceChange
 import app.aaps.wear.heartrate.HeartRateListener
 import app.aaps.wear.interaction.ConfigurationActivity
 import app.aaps.wear.watchfaces.WatchFacePushHelper
+import app.aaps.wear.wearStepCount.DailyStepsTracker
 import app.aaps.wear.wearStepCount.StepCountListener
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.CapabilityClient
@@ -69,6 +70,8 @@ class DataLayerListenerServiceWear : WearableListenerService() {
     private val disposable = CompositeDisposable()
     private var heartRateListener: HeartRateListener? = null
     private var stepCountListener: StepCountListener? = null
+    // The day's steps for the AIMI watch face, kept all day (see the class).
+    private var dailySteps: DailyStepsTracker? = null
 
     private val rxPath get() = getString(app.aaps.core.interfaces.R.string.path_rx_bridge)
     private val rxDataPath get() = getString(app.aaps.core.interfaces.R.string.path_rx_data_bridge)
@@ -98,6 +101,7 @@ class DataLayerListenerServiceWear : WearableListenerService() {
 
         updateHeartRateListener()
         updateStepsCountListener()
+        dailySteps = DailyStepsTracker(this).also { it.start() }
 
         // A watch with Watch Face Push has no code-based face to ask the phone for its data, so
         // nothing would ask until a menu or a tile is opened. The pushed face choice lives on the
@@ -122,6 +126,7 @@ class DataLayerListenerServiceWear : WearableListenerService() {
         handler.looper.quitSafely()
         scope.cancel()
         disposable.clear()
+        dailySteps?.stop()
     }
 
     override fun onMessageReceived(messageEvent: MessageEvent) {

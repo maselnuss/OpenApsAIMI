@@ -147,4 +147,22 @@
         <item>ICON</item>
     </string-array>
 
+    <string-array name="aimi_low_lead_name">
+        <item>@string/aimi_lead_30</item>
+        <item>@string/aimi_lead_60</item>
+    </string-array>
+    <string-array name="aimi_low_lead_values" translatable="false">
+        <item>30</item>
+        <item>60</item>
+    </string-array>
+    <string-array name="aimi_ack_name">
+        <item>@string/aimi_ack_until_gone</item>
+        <item>@string/aimi_ack_30</item>
+        <item>@string/aimi_ack_60</item>
+    </string-array>
+    <string-array name="aimi_ack_values" translatable="false">
+        <item>0</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
 </resources>

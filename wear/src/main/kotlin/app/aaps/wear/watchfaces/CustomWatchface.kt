@@ -75,6 +75,7 @@ import app.aaps.wear.watchfaces.utils.WatchFaceComplicationSlots
 import app.aaps.wear.watchfaces.utils.WatchFaceComplications
 import app.aaps.wear.watchfaces.utils.WatchFaceSettingRow
 import app.aaps.wear.watchfaces.utils.WatchFaceSettings
+import app.aaps.wear.watchfaces.utils.WatchMode
 import app.aaps.wear.watchfaces.utils.WatchfaceViewAdapter.Companion.SelectedWatchFace
 import app.aaps.wear.watchfaces.utils.secondVisibility
 import dev.zacsweers.metro.Inject
@@ -253,6 +254,31 @@ class CustomWatchface : BaseWatchFace(), CwfRenderTarget {
                     )
                 }
                 add(WatchFaceSettingRow.Toggle(R.string.key_include_external, R.string.pref_include_external, false))
+                // The AIMI low warning, only for a CWF that carries the AIMI overlay.
+                if (json != null && ViewMap.AIMI_OVERLAY.isShownBy(json)) {
+                    add(WatchFaceSettingRow.Toggle(R.string.key_aimi_low_warning, R.string.pref_aimi_low_warning, true))
+                    add(
+                        WatchFaceSettingRow.Choice(
+                            key = R.string.key_aimi_low_lead,
+                            title = R.string.pref_aimi_low_lead,
+                            entries = R.array.aimi_low_lead_name,
+                            entryValues = R.array.aimi_low_lead_values,
+                            defaultValue = "60",
+                            dependencyKey = R.string.key_aimi_low_warning
+                        )
+                    )
+                    add(WatchFaceSettingRow.Toggle(R.string.key_aimi_red_border, R.string.pref_aimi_red_border, true, R.string.key_aimi_low_warning))
+                    add(
+                        WatchFaceSettingRow.Choice(
+                            key = R.string.key_aimi_ack_minutes,
+                            title = R.string.pref_aimi_ack_minutes,
+                            entries = R.array.aimi_ack_name,
+                            entryValues = R.array.aimi_ack_values,
+                            defaultValue = "60",
+                            dependencyKey = R.string.key_aimi_low_warning
+                        )
+                    )
+                }
             }
         }
 
@@ -771,8 +797,36 @@ class CustomWatchface : BaseWatchFace(), CwfRenderTarget {
     /** The instant this render depicts. */
     private fun renderNow(): Long = renderInstant ?: dateUtil.now()
 
+    /**
+     * True while the AIMI overlay is on the face and the watch is in ambient mode: the face then draws its own
+     * outline picture ([AimiOverlayView.drawAmbient]) instead of the layout, so nothing of the bright face stays.
+     */
+    private fun aimiAmbientOn(): Boolean =
+        ::binding.isInitialized && isAmbient && !isRenderOnly && binding.aimiOverlay.visibility == View.VISIBLE
+
+    private fun drawAimiAmbient(canvas: Canvas): Boolean {
+        if (!aimiAmbientOn()) return false
+        val overlay = binding.aimiOverlay
+        val bg = singleBg[0]
+        val now = renderNow()
+        val minutes = if (bg.timeStamp > 0) floor(timeSince() / 60_000.0).toInt() else -1
+        val mode = currentWatchMode
+        return overlay.drawAmbient(
+            canvas,
+            hour = dateUtil.hourString(now),
+            minute = dateUtil.minuteString(now),
+            sgv = bg.sgvString,
+            sgvMgdl = bg.sgv,
+            arrow = bg.slopeArrow,
+            age = if (minutes >= 0) "$minutes min ago" else "--",
+            strike = ageLevel() <= 0 && bg.timeStamp > 0,
+            lowBit = mode == WatchMode.LOW_BIT || mode == WatchMode.LOW_BIT_BURN_IN
+        )
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        if (drawAimiAmbient(canvas)) return
         // Nothing of the CWF is drawn in simpleUi mode - mainLayout is skipped by drawMainLayout() and
         // complications by complicationRender(). background is drawn here rather than inside
         // mainLayout, so it needs the same check or it would paint over the simple UI.
@@ -797,6 +851,7 @@ class CustomWatchface : BaseWatchFace(), CwfRenderTarget {
     }
 
     override fun onDrawOverlay(canvas: Canvas) {
+        if (aimiAmbientOn()) return
         drawMainLayout(canvas)
     }
 
@@ -1341,6 +1396,7 @@ class CustomWatchface : BaseWatchFace(), CwfRenderTarget {
         COMPLICATION4(ViewKeys.COMPLICATION4.key, R.id.complication4, complication = ComplicationMap.COMPLICATION4),
         COMPLICATION5(ViewKeys.COMPLICATION5.key, R.id.complication5, complication = ComplicationMap.COMPLICATION5),
         CHART(ViewKeys.CHART.key, R.id.chart),
+        AIMI_OVERLAY(ViewKeys.AIMI_OVERLAY.key, R.id.aimi_overlay),
         COVER_CHART(
             key = ViewKeys.COVER_CHART.key,
             id = R.id.cover_chart,

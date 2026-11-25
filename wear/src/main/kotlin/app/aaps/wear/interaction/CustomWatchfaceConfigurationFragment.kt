@@ -1,7 +1,12 @@
 package app.aaps.wear.interaction
 
+import android.graphics.Color
 import android.os.Bundle
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.annotation.StringRes
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.CheckBoxPreference
@@ -121,11 +126,49 @@ class CustomWatchfaceConfigurationFragment : PreferenceFragmentCompat() {
         }
     }
 
+    /**
+     * The choice dialog, fitted to the round screen. The standard one fills the screen from its top edge with no
+     * title, so its first row sits in the cut-off corner and the list cannot be told apart from the row behind it.
+     * This one has a centred title with room above it, rows with room around them, and scrolls when there are more
+     * rows than fit.
+     */
+    override fun onDisplayPreferenceDialog(preference: Preference) {
+        if (preference !is ListPreference) return super.onDisplayPreferenceDialog(preference)
+        val context = requireContext()
+        val height = resources.displayMetrics.heightPixels
+        val title = TextView(context).apply {
+            text = preference.title
+            gravity = Gravity.CENTER
+            setTextColor(Color.WHITE)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
+            setPadding(
+                (resources.displayMetrics.widthPixels * 0.14f).toInt(), (height * 0.14f).toInt(),
+                (resources.displayMetrics.widthPixels * 0.14f).toInt(), (height * 0.02f).toInt()
+            )
+        }
+        val dialog = AlertDialog.Builder(context)
+            .setCustomTitle(title)
+            .setSingleChoiceItems(preference.entries, preference.findIndexOfValue(preference.value)) { dialog, which ->
+                val value = preference.entryValues[which].toString()
+                if (preference.callChangeListener(value)) preference.value = value
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+        dialog.show()
+        dialog.listView?.apply {
+            clipToPadding = false
+            setPadding(paddingLeft, paddingTop, paddingRight, (height * 0.03f).toInt())
+            requestFocus()
+        }
+    }
+
     /** True when showing a sub-screen, which carries no complication picker rows to summarise. */
     private val isSubScreen get() = (arguments?.getInt(ARG_SUB_SCREEN_KEY, 0) ?: 0) != 0
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        listView.fitRoundScreen()
         if (isSubScreen) return
         val host = activity as? ConfigurationActivity ?: return
         // A StateFlow the library fills in once per slot after the session is created, and again for

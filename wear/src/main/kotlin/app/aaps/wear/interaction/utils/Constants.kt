@@ -6,5 +6,6 @@ object Constants {
     const val MINUTE_IN_MS: Long = 60000
     const val HOUR_IN_MS: Long = 3600000
     const val DAY_IN_MS: Long = 86400000
-    const val STALE_MS = MINUTE_IN_MS * 12
+    /** The age after which a reading counts as old: the limit the phone strikes the value through at. */
+    const val STALE_MS = MINUTE_IN_MS * app.aaps.core.data.configuration.Constants.OLD_BG_MINUTES
 }

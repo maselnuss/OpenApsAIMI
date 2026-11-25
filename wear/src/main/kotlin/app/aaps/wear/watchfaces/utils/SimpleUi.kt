@@ -94,7 +94,7 @@ class SimpleUi(
     }
 
     private fun isOutdated(singleBg: EventData.SingleBg): Boolean =
-        singleBg.timeStamp > 0 && (System.currentTimeMillis() - singleBg.timeStamp) > 1000 * 60 * 12
+        singleBg.timeStamp > 0 && (System.currentTimeMillis() - singleBg.timeStamp) > app.aaps.core.data.configuration.Constants.OLD_BG_MINUTES * 60_000L
 
     private fun getBgColour(level: Long): Int =
         when (level) {

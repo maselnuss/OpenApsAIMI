@@ -321,6 +321,7 @@ enum class BooleanKey(
     WearWizardCob(key = "wearwizard_cob", defaultValue = true, title = KeysStrings.pref_title_wear_wizard_cob, dependency = WearControl, hideParentScreenIfHidden = true),
     WearWizardIob(key = "wearwizard_iob", defaultValue = true, title = KeysStrings.pref_title_wear_wizard_iob, dependency = WearControl, hideParentScreenIfHidden = true),
     WearCustomWatchfaceAuthorization(key = "wear_custom_watchface_autorization", defaultValue = false, title = KeysStrings.pref_title_wear_custom_watchface_authorization),
+    WearAimiWeather(key = "wear_aimi_weather", defaultValue = true, title = KeysStrings.pref_title_wear_aimi_weather, summary = KeysStrings.pref_summary_wear_aimi_weather),
     WearNotifyOnSmb(key = "wear_notifySMB", defaultValue = true, title = KeysStrings.pref_title_wear_notify_on_smb, summary = KeysStrings.pref_summary_wear_notify_on_smb),
     WearBroadcastData(key = "wear_broadcast_data", defaultValue = false, title = KeysStrings.pref_title_wear_broadcast_data, summary = KeysStrings.pref_summary_wear_broadcast_data, showInApsMode = false, showInPumpControlMode = false),
 

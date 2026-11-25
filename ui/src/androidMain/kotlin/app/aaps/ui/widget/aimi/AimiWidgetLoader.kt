@@ -8,6 +8,7 @@ import app.aaps.core.interfaces.iob.IobCobCalculator
 import app.aaps.core.interfaces.overview.graph.BgType
 import app.aaps.core.interfaces.overview.graph.OverviewDataCache
 import app.aaps.core.interfaces.plugin.ActivePlugin
+import app.aaps.core.interfaces.rx.weardata.EventData
 import app.aaps.core.interfaces.profile.ProfileFunction
 import app.aaps.core.interfaces.profile.ProfileUtil
 import app.aaps.core.interfaces.utils.DateUtil
@@ -35,7 +36,8 @@ class AimiWidgetLoader(
     private val profileUtil: ProfileUtil,
     private val iobCobCalculator: IobCobCalculator,
     private val preferences: Preferences,
-    private val dateUtil: DateUtil
+    private val dateUtil: DateUtil,
+    private val weather: AimiWeather
 ) {
 
     private inline fun <T> safe(block: () -> T?): T? =
@@ -101,6 +103,60 @@ class AimiWidgetLoader(
             pod = safe { pod(now) },
             sensor = safe { sensor(now) },
             profileText = state.profileText
+        )
+    }
+
+    /**
+     * The same forecast, time in range, pod and sensor as [load], for the AIMI watch face, glucose in mg/dL.
+     * Each part is left out when it cannot be read, like in [load].
+     */
+    suspend fun loadWatchExtras(): EventData.TreatmentData.Aimi? {
+        val now = dateUtil.now()
+        val state = safe { widgetStateBuilder.build() } ?: return null
+        val units = state.units
+        val cache = cacheProvider()
+        val history = safe {
+            cache.bucketedDataFlow.value
+                .filter { it.type == BgType.BUCKETED && it.timestamp in (now - HISTORY_MS)..now }
+                .sortedBy { it.timestamp }
+        } ?: emptyList()
+        val forecast = safe {
+            DisplayForecast.build(history, cache.predictionsFlow.value, now) { profileUtil.fromMgdlToUnits(it, units) }
+        }
+        // The forecast is built in the display unit; the watch gets mg/dL.
+        fun points(list: List<app.aaps.ui.compose.dashboard.ForecastPoint>) =
+            ArrayList(list.map { EventData.TreatmentData.AimiPoint(it.timeMs, profileUtil.convertToMgdl(it.value, units)) })
+
+        val lowMark = preferences.get(UnitDoubleKey.OverviewLowMark)
+        val highMark = preferences.get(UnitDoubleKey.OverviewHighMark)
+        val tir = safe { timeInRange(now, units, lowMark, highMark) }
+        val pod = safe { pod(now) }
+        val sensor = safe { sensor(now) }
+        val wx = safe { weather.current(now) }
+        val iob = state.iob.takeIf { it.isFinite() }
+        val basalNow = safe { basalNow(now) }
+        val profileBasal = safe { profileBasal(now) }
+        return EventData.TreatmentData.Aimi(
+            centre = forecast?.let { points(it.centre) } ?: ArrayList(),
+            low = forecast?.let { points(it.low) } ?: ArrayList(),
+            high = forecast?.let { points(it.high) } ?: ArrayList(),
+            insulinOnly = forecast?.let { points(it.insulinOnly) } ?: ArrayList(),
+            lowRisk = forecast?.lowRisk ?: false,
+            tirLow = tir?.low ?: -1,
+            tirIn = tir?.inRange ?: -1,
+            tirHigh = tir?.high ?: -1,
+            podFraction = pod?.fractionLeft ?: -1f,
+            podLevel = pod?.level?.ordinal ?: 0,
+            sensorFraction = sensor?.fractionLeft ?: -1f,
+            sensorLevel = sensor?.level?.ordinal ?: 0,
+            lowMarkMgdl = profileUtil.convertToMgdl(lowMark, units),
+            highMarkMgdl = profileUtil.convertToMgdl(highMark, units),
+            weatherNowC = wx?.nowC ?: EventData.TreatmentData.Aimi.UNKNOWN,
+            weatherLowC = wx?.lowC ?: EventData.TreatmentData.Aimi.UNKNOWN,
+            weatherHighC = wx?.highC ?: EventData.TreatmentData.Aimi.UNKNOWN,
+            iobU = iob ?: EventData.TreatmentData.Aimi.UNKNOWN,
+            basalNowU = basalNow ?: EventData.TreatmentData.Aimi.UNKNOWN,
+            basalProfileU = profileBasal ?: EventData.TreatmentData.Aimi.UNKNOWN,
         )
     }
 

@@ -63,6 +63,7 @@ import app.aaps.core.interfaces.rx.events.EventMobileToWear
 import app.aaps.core.interfaces.rx.events.EventShowSnackbar
 import app.aaps.core.interfaces.rx.events.EventWearUpdateGui
 import app.aaps.core.interfaces.rx.weardata.ActiveSceneInfo
+import app.aaps.core.interfaces.rx.weardata.AimiWatchExtrasProvider
 import app.aaps.core.interfaces.rx.weardata.CwfMetadataKey
 import app.aaps.core.interfaces.overview.graph.buildTargetLine
 import app.aaps.core.interfaces.overview.graph.targetMiddleMgdl
@@ -116,6 +117,7 @@ import app.aaps.plugins.sync.SyncStrings
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -187,6 +189,8 @@ class DataHandlerMobile(
     @Inject lateinit var sensitivityOverview: SensitivityOverview
     @Inject lateinit var eatReminder: EatReminder
     @Inject lateinit var clientControlDispatcher: ClientControlActionDispatcher
+    // Member-injected like the ones above, so the constructor (and the tests that build it) stays as it is.
+    @Inject lateinit var aimiWatchExtrasProvider: AimiWatchExtrasProvider
 
     // App lifetime: this is a @Singleton that subscribes in init and
     // never tears down. Dispatchers.IO because that is what the io scheduler gave these handlers, and
@@ -1541,10 +1545,22 @@ class DataHandlerMobile(
             buildTargetLine(startTimeWindow, now + T.hours(2).msecs(), temporaryTargets, profile::targetMiddleMgdl) { it }
                 .map { EventData.TreatmentData.Target(it.timestamp, it.value) }
         )
+        // The AIMI watch face's extra data. Left out (null) when the provider is not there (tests) or fails.
+        val aimi = if (::aimiWatchExtrasProvider.isInitialized) {
+            try {
+                aimiWatchExtrasProvider.loadWatchExtras()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                aapsLogger.error(LTag.WEAR, "AIMI watch extras failed", e)
+                null
+            }
+        } else null
         sendToWear(
             EventData.TreatmentData(
                 temps, basals, boluses, predictions,
                 targets = targets,
+                aimi = aimi,
                 smbSmallBelow = smbSizeClasses?.smallBelow ?: -1.0,
                 smbLargeFrom = smbSizeClasses?.largeFrom ?: -1.0,
                 bolusSmallBelow = bolusSizeClasses?.smallBelow ?: -1.0,

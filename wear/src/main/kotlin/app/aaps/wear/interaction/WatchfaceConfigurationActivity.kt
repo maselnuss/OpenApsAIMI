@@ -79,7 +79,7 @@ class WatchfaceConfigurationActivity : WearPreferenceActivity(), SharedPreferenc
 
         // Add padding to the content view for spacing from top and bottom
         val contentView = findViewById<ViewGroup>(android.R.id.content)
-        contentView?.setPadding(0, 50, 0, 50)
+        contentView?.setPadding(0, 0, 0, 0)
     }
 
     // CustomWatchface's screen is built in code by its own fragment, so it takes no xml - see
@@ -142,6 +142,11 @@ class WatchfaceConfigurationActivity : WearPreferenceActivity(), SharedPreferenc
      * only screen that has any is CustomWatchface's, built by its own fragment.
      */
     class WatchfaceConfigurationFragment : PreferenceFragmentCompat() {
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            listView.fitRoundScreen()
+        }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             val resXmlId = arguments?.getInt(ARG_XML_RES_ID) ?: 0

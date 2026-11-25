@@ -1,0 +1,42 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <!-- Same grey disc as the other menu icons -->
+  <path
+      android:pathData="M12,12m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0"
+      android:fillColor="#555555"/>
+  <!-- Ring of the watch face: four equal arcs with equal gaps -->
+  <path
+      android:pathData="M13.35,4.32A7.8,7.8 0,0 1,19.68,10.65"
+      android:strokeColor="#84C441"
+      android:strokeWidth="1.8"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M19.68,13.35A7.8,7.8 0,0 1,13.35,19.68"
+      android:strokeColor="#F99D1C"
+      android:strokeWidth="1.8"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M10.65,19.68A7.8,7.8 0,0 1,4.32,13.35"
+      android:strokeColor="#40C7F4"
+      android:strokeWidth="1.8"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M4.32,10.65A7.8,7.8 0,0 1,10.65,4.32"
+      android:strokeColor="#84C441"
+      android:strokeWidth="1.8"
+      android:strokeLineCap="round"/>
+  <!-- Hands -->
+  <path
+      android:pathData="M12,12L12,8.2"
+      android:strokeColor="#DEDDDD"
+      android:strokeWidth="1.6"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M12,12L14.8,13.6"
+      android:strokeColor="#DEDDDD"
+      android:strokeWidth="1.6"
+      android:strokeLineCap="round"/>
+</vector>

@@ -58,6 +58,14 @@
         android:layout_marginTop="230px"
         android:layout_marginBottom="0px" />
 
+    <app.aaps.wear.watchfaces.utils.AimiOverlayView
+        android:id="@+id/aimi_overlay"
+        android:layout_width="400px"
+        android:layout_height="400px"
+        android:layout_marginLeft="0px"
+        android:layout_marginTop="0px"
+        android:visibility="gone" />
+
 
     <ImageView
         android:id="@+id/cover_chart"

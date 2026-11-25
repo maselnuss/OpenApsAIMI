@@ -487,4 +487,17 @@
     <string name="watch_direct_low">Low glucose</string>
     <string name="watch_direct_urgent_low">Urgent low glucose</string>
     <string name="watch_direct_low_message" comment="%1$s=glucose value with its number format, %2$s=trend arrow. Example: 62 ↘ - no reading from the phone for 15 minutes">%1$s %2$s - no reading from the phone for 15 minutes</string>
+    <string name="key_aimi_low_warning" translatable="false">aimi_low_warning</string>
+    <string name="key_aimi_low_lead" translatable="false">aimi_low_lead</string>
+    <string name="key_aimi_red_border" translatable="false">aimi_red_border</string>
+    <string name="key_aimi_ack_minutes" translatable="false">aimi_ack_minutes</string>
+    <string name="pref_aimi_low_warning">Low warning</string>
+    <string name="pref_aimi_low_lead">Warn when a low is expected within</string>
+    <string name="pref_aimi_red_border">Red border during a low warning</string>
+    <string name="pref_aimi_ack_minutes">An acknowledged warning stays hidden</string>
+    <string name="aimi_lead_30">30 minutes</string>
+    <string name="aimi_lead_60">60 minutes</string>
+    <string name="aimi_ack_until_gone">Until the low is gone</string>
+    <string name="aimi_ack_30">30 minutes at most</string>
+    <string name="aimi_ack_60">60 minutes at most</string>
 </resources>

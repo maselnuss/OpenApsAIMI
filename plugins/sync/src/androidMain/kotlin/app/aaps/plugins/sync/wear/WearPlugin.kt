@@ -332,7 +332,8 @@ class WearPlugin(
                 key = "wear_custom_watchface_settings",
                 title = SyncStrings.wear_custom_watchface_settings,
                 items = listOf(
-                    BooleanKey.WearCustomWatchfaceAuthorization
+                    BooleanKey.WearCustomWatchfaceAuthorization,
+                    BooleanKey.WearAimiWeather
                 )
             ),
             PreferenceSubScreenDef(

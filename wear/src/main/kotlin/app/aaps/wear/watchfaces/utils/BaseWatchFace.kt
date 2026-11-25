@@ -268,6 +268,14 @@ abstract class BaseWatchFace : WatchFace() {
             return
         }
 
+        // A tap on the AIMI graph acknowledges an active low warning (nothing else is touched by it).
+        binding.aimiOverlay?.let {
+            if (it.visibility == android.view.View.VISIBLE && it.handleTap(x.toFloat(), y.toFloat())) {
+                invalidate()
+                return
+            }
+        }
+
         binding.chart?.let { chart ->
             if (x >= chart.left && x <= chart.right && y >= chart.top && y <= chart.bottom) {
                 if (eventTime - chartTapTime < 800) {
@@ -351,8 +359,9 @@ abstract class BaseWatchFace : WatchFace() {
         if (!isRenderOnly) missedReadingAlert()
     }
 
+    /** 1 while the reading is current; the limit is the one the phone strikes the value through at. */
     fun ageLevel(id: Int = 0): Int =
-        if (timeSince(id) <= 1000 * 60 * 12) 1 else 0
+        if (timeSince(id) <= app.aaps.core.data.configuration.Constants.OLD_BG_MINUTES * 60_000L) 1 else 0
 
     fun timeSince(id: Int = 0): Double = (System.currentTimeMillis() - singleBg[id].timeStamp).toDouble()
 
@@ -370,6 +379,12 @@ abstract class BaseWatchFace : WatchFace() {
         // ensureInjected(). For watch faces with no complication slots this is the only entry point.
         ensureInjected()
         watchfaceScope.cancel()
+        if (::binding.isInitialized) {
+            binding.aimiOverlay?.let {
+                it.setActive(false)
+                it.requestRedraw = null
+            }
+        }
         simpleUi.onDestroy()
         super.onDestroy()
     }
@@ -824,6 +839,8 @@ abstract class BaseWatchFace : WatchFace() {
 
     override fun onWatchModeChanged(watchMode: WatchMode) {
         if (!::binding.isInitialized) return
+        // Pulse and step sensors only while interactive; the ambient picture of the AIMI face reads none.
+        binding.aimiOverlay?.setActive(watchMode == WatchMode.INTERACTIVE)
         updateSecondVisibility()    // will show second if enabledSecond and Interactive mode, hide in other situation
         setSecond()                 // will remove second from main date and time if not in Interactive mode
         lowResMode = isLowRes(watchMode)
@@ -891,6 +908,12 @@ abstract class BaseWatchFace : WatchFace() {
             return
         }
         if (!::binding.isInitialized) return
+        // The AIMI overlay of the Custom watch face (null on every other face): rings, forecast band, SMB strip.
+        binding.aimiOverlay?.let {
+            it.requestRedraw = { invalidate() }
+            it.setActive(currentWatchMode == WatchMode.INTERACTIVE)
+        }
+        binding.aimiOverlay?.update(treatmentData.aimi, graphData.entries, treatmentData.boluses, treatmentData.smbSmallBelow, treatmentData.smbLargeFrom)
         if (binding.chart != null && graphData.entries.isNotEmpty()) {
             val timeframe = sp.getString(R.string.key_chart_time_frame, "3").toIntOrNull() ?: 3  // Changed from getInt
             val bgGraphBuilder =

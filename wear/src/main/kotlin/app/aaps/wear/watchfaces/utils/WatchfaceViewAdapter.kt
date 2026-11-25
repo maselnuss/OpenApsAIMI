@@ -93,6 +93,7 @@ class WatchfaceViewAdapter(
     val day = ds?.day ?: cU?.day
     val month = ds?.month ?: cU?.month
     val chart = ds?.chart ?: cU?.chart
+    val aimiOverlay = cU?.aimiOverlay
     val timePeriod = ds?.timePeriod ?: cU?.timePeriod
     val dayName = ds?.dayName ?: cU?.dayName
     val mainMenuTap = ds?.mainMenuTap
